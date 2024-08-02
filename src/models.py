@@ -13,16 +13,18 @@ class Users(Base):
     password = Column(String, nullable=False)
     on_create = Column(DateTime, default=datetime.now())
     on_update = Column(DateTime, default=datetime.now(), onupdate=datetime.now())
-    roles = relationship('UserRoles', back_populates='userroles')
+    roles = relationship('UserRoles', back_populates='user')
 
 class Roles(Base):
     __tablename__ = 'roles'
     id = Column(Integer, primary_key=True)
     role = Column(String, unique=True)
+    user_roles = relationship('UserRoles', back_populates='role')
 
 class UserRoles(Base):
     __tablename__ = 'user_roles'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     role_id = Column(Integer, ForeignKey('roles.id'))
-    userroles = relationship('Users', back_populates='roles')
+    user = relationship('Users', back_populates='roles')
+    role = relationship('Roles', back_populates='user_roles')

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response, Depends, HTTPException
 
 from src.services.dependencies import get_current_user
-from src.services.auth import auth_service
+from src.services.auth import auth_service, get_current_user_info
 from src.services.update import update_username_service, send_change_email_first, verify_select
 from src.shemas import SUserChange_One, SUserAuth, SUserChangeUsername, SVJWTcurrentUser, SUserCreate, SUserAddPasswod
 from src.services.create import send_registration_link, vefify_token
@@ -19,7 +19,7 @@ def send_mail_registration(body: SUserCreate):
     }
 
 @router.post('/verify/email/{token}', status_code=201)
-async def verify_token(token: str, body: SUserAddPasswod):
+async def verify_token_posg(token: str, body: SUserAddPasswod):
     await vefify_token(token=token, body=body)
     return {'msg': 'Пользователь верифицирован'}
 
@@ -36,7 +36,7 @@ async def change_username(username: SUserChangeUsername, user_id: SVJWTcurrentUs
 
 @router.patch('/change/email', status_code=200)
 async def change_email(body: SUserChange_One, response: Response, user_id: SVJWTcurrentUser = Depends(get_current_user)):
-    result = await send_change_email_first(body=body, user_id=user_id)
+    result = await send_change_email_first(body=body, user_id=user_id.sub)
     if result:
         response.delete_cookie('access_token')
         raise HTTPException(
@@ -46,7 +46,7 @@ async def change_email(body: SUserChange_One, response: Response, user_id: SVJWT
     return {'Письмо с ссылкой на подтверждение отправлено на оригинальную почту'}
 
 @router.get('/verify/email/{token}')
-async def verify_token(token: str, response: Response, user_id = Depends(get_current_user)):
+async def verify_token_get(token: str, response: Response, user_id = Depends(get_current_user)):
     result = await verify_select(token=token, user_id=user_id)
     if result:
         response.delete_cookie('access_token')
@@ -55,3 +55,7 @@ async def verify_token(token: str, response: Response, user_id = Depends(get_cur
             detail=result
         )
     return 'Ok'
+
+@router.get('/info', status_code=200)
+async def get_user_info(user_id: SVJWTcurrentUser = Depends(get_current_user)):
+    return await get_current_user_info(user_id=user_id.sub)

@@ -74,6 +74,13 @@ class UserRolesCRUD(__BaseCRUD__):
             result = await session.execute(query)
             await session.commit()
             return result.scalar_one()
+    @classmethod
+    async def model_find_all_roles_current_user(cls, user_id: int):
+        async with async_session() as session:
+            query = select(Roles.role).join(UserRoles).filter(UserRoles.user_id == user_id)
+            result = await session.execute(query)
+            roles = result.scalars().all()
+            return roles
 
 class RolesCRUD(__BaseCRUD__):
     model = Roles
@@ -115,9 +122,8 @@ class BaseJWT:
         return jwt_token
 
 class MailBase:
-    schema = BaseJWT
     @classmethod
-    def send(cls, body: SendMail):
+    def send(body: SendMail):
         SMTP_MAIL: SendMail = SendMail(
             email=body.email,
             subject=body.subject,

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, EmailStr, Field
 
 #Авторизация пользователя
@@ -43,13 +45,18 @@ class SendMail(BaseModel):
     subject: str
     message: str
 
+class SUserInfo(BaseModel):
+    email: EmailStr
+    username: None | str
+    roles: list[str]
+    on_create: datetime
+    on_update: datetime
+
 #JWT схемы
 
-#JWT время токена
 class SJWTExpire(BaseModel):
     exp: float
 
-#JWT получение текущего юзера
 class SVJWTcurrentUser(SJWTExpire):
     sub: int
 
