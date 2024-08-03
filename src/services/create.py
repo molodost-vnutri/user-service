@@ -1,27 +1,29 @@
 from src.services.jwt_ import JWTVerify
-from src.Core import MailBase
+from src.Core import send
 from src.settings import settings
 from src.services.psw_ import depend_password, hashed_password
-from src.shemas import SUserAddPasswod, SUserCreate, SendMail
-from src.Core import UsersCRUD, UserRolesCRUD
+from src.shemas import SUserAddPasswod, SUserCreate, SMailSend
+from src.CRUD import UsersCRUD, UserRolesCRUD
 
 def verify_text(token: str) -> str:
-    return f'''Вы действительно хотите изменить почту?
-Мы не настаиваем изменять её, просто после этого аккаунт не будет никак связан с этой почтой кроме как писем которые там находились.
-Но если вы всё таки настроенны серьёзно, то вот держите, но потом не плачьте, что у вас украли аккаунт, придётся писать в тех поддержку чтобы восстановить аккаунт
+    return f'''Тук-тук к вам пришли чтобы вы дали согласие на регистрацию аккаунта
+Мы не настаиваем на согласия, просто после этого вы сможете слушать свою любимую музыку без рекламы, но если вы не подавали запрос на регистрацию, то не стоит регистрироваться пока не узнаете о чём речь.
 {settings.HOST}/verify/mail/{token}
+Если вы не получали письмо, то можете посмотреть что упускаете https://{settings.HOST}/docs
 '''
 
-def send_registration_link(body: SUserCreate):
+async def send_registration_link(body: SUserCreate):
+    if await UsersCRUD.find_one_or_none(email=body.email):
+        return
     token = JWTVerify.create_access_token(token={'email': body.email}, minutes=15)
-    MailBase.send(
-        SendMail(
+    send(
+        SMailSend(
             email=body.email,
             subject='Завершение регистрации пользователя',
             message=verify_text(token)
         )
     )
-async def vefify_token(token: str, body: SUserAddPasswod):
+async def verify_token(token: str, body: SUserAddPasswod):
     token = JWTVerify.decode_token(token)
     depend_password(password=body.password, password_verify=body.password_verify)
     password = hashed_password(password=body.password)

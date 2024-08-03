@@ -50,7 +50,22 @@ PasswordIncorrect = HTTPException(
     detail='Неверный пароль'
 )
 
+PasswordNotCorrect = HTTPException(
+    status_code=409,
+    detail='Новый пароль не может совпадать со старым паролем'
+)
+
 MailOrPasswordIncorrect = HTTPException(
     status_code=401,
     detail='Почта или пароль невалидны'
+)
+
+UserAlreadyAuth = HTTPException(
+    status_code=409,
+    detail='Вы уже авторизованы'
+)
+
+UserAlreadyExist = HTTPException(
+    status_code=409,
+    detail='Юзернейм уже занят'
 )

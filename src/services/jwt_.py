@@ -1,15 +1,11 @@
 from src.Core import BaseJWT
-from src.shemas import SUserCreate, SVJWT, SVJWTcurrentUser, SUserChangeEmailJWT, SVUserChangeEmailJWT
-
-
+from src.shemas import JWTCurrentUser, JWTUserChangeEmail, JWTCreateMail
 
 class JWTVerify(BaseJWT):
-    schemas_create = SUserCreate
-    schemas_validator = SVJWT
+    schemas_validator = JWTCreateMail
 
 class JWTCurrentUser(BaseJWT):
-    schemas_create = SVJWTcurrentUser
+    schemas_validator = JWTCurrentUser
 
-class JWTEmailChange(BaseJWT):
-    schemas_create = SUserChangeEmailJWT
-    schemas_validator = SVUserChangeEmailJWT
+class JWTChangeMail(BaseJWT):
+    schemas_validator = JWTUserChangeEmail

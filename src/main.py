@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from src.api.user_router import router as user_router
+from src.router import router
 
 app = FastAPI(title='Сервис авторизации')
 
-app.include_router(user_router)
+app.include_router(router)
