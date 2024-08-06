@@ -7,7 +7,8 @@ class Settings(BaseSettings):
     HOST: str
     ALGORITHM: str
     SECRET_KEY: str
-
+    
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(env_file='.env')
 
 settings = Settings()
+print(settings.DB_URL)
